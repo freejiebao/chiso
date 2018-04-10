@@ -16,7 +16,7 @@ void sysstyle();
 void histstyle(TH1D *h1,int i,TLegend *leg);
 int med(){
   TChain *chain = new TChain("treeDumper/PKUCandidates");
-  chain->Add("treePKU*.root");
+  chain->Add("../treePKU*.root");
   Int_t bin1=50;
   Int_t bin2=50;
   Int_t bin3=50;
