@@ -60,8 +60,12 @@ int med(){
   chain->SetBranchAddress("photon_sieie",photon_sieie);
   chain->SetBranchAddress("photon_pt",photon_pt);
   chain->SetBranchAddress("photon_eta",photon_eta);
-  string loose="photon_hoe[0]<0.105 && photon_nhiso[0]<9.188+0.0126*photon_pt[0]+0.000026*photon_pt[0]*photon_pt[0] && photon_phoiso[0]<2.956+0.0035*photon_pt[0]";
-  string medium="photon_hoe[0]<0.035 && photon_nhiso[0]<2.491+0.0126*photon_pt[0]+0.000026*photon_pt[0]*photon_pt[0] && photon_phoiso[0]<2.952+0.0040*photon_pt[0]";
+  //string loose="photon_hoe[0]<0.105 && photon_nhiso[0]<9.188+0.0126*photon_pt[0]+0.000026*photon_pt[0]*photon_pt[0] && photon_phoiso[0]<2.956+0.0035*photon_pt[0]";
+  //string medium="photon_hoe[0]<0.035 && photon_nhiso[0]<2.491+0.0126*photon_pt[0]+0.000026*photon_pt[0]*photon_pt[0] && photon_phoiso[0]<2.952+0.0040*photon_pt[0]";
+  bool wjet = lep==13 && nlooseeles==0 && nloosemus<2 && mtVlepJECnew>30 && ptlep1>25 && fabs(etalep1)<2.1 && MET_et>35;
+  bool photon_cut;
+  bool loose;
+  bool medium;
   Long64_t nentries = chain->GetEntries();
   TH1D *h[7];
   TH1D *hm[7];
@@ -82,15 +86,17 @@ int med(){
     pt_cut=0.;
     flag=0;
     for (int j=0;j<6;j++) {
-       if (lep==13 && nlooseeles==0 && nloosemus<2 && mtVlepJECnew>30 && ptlep1>25 && fabs(etalep1)<2.1 && MET_et>35
-       && photon_isprompt[j] != 1  &&  photon_drla[j]>0.3 && photon_eta[j]<1.442 && photon_sieie[j]<0.018 && photon_hoe[j]<0.035 && photon_nhiso[j]<2.491+0.0126*photon_pt[j]+0.000026*photon_pt[j]*photon_pt[j] && photon_phoiso[j]<2.952+0.0040*photon_pt[j]) {
+       photon_cut = photon_isprompt[j] != 1  &&  photon_drla[j]>0.3 && photon_eta[j]<1.442 && photon_sieie[j]<0.018; //limit photon in the barrel, and restrict photon_sieie<0.018
+       loose = photon_hoe[j]<0.105 && photon_nhiso[j]<9.188+0.0126*photon_pt[j]+0.000026*photon_pt[j]*photon_pt[j] && photon_phoiso[j]<2.956+0.0035*photon_pt[j];
+       medium = photon_hoe[j]<0.035 && photon_nhiso[j]<2.491+0.0126*photon_pt[j]+0.000026*photon_pt[j]*photon_pt[j] && photon_phoiso[j]<2.952+0.0040*photon_pt[j];
+       if ( wjet == true && photon_cut == true && medium == true ) {
          if (pt_cut-photon_pt[j]<0.){
            pt_cut=photon_pt[j];
            flag=j;
          }
-         if (j==5) {
+         if ( j==5 ) {
            if (photon_chiso[flag]<1.416){
-             hm[flag]->Fill(photon_sieie[j]);
+             hm[0]->Fill(photon_sieie[flag]);
            }
            for(int i=1;i<7;i++){
              if (photon_chiso[flag]>(Double_t)2.*i ){
