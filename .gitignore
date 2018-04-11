@@ -33,3 +33,7 @@
 
 # dict file produced by root
 *.pcm
+
+# output file
+*.eps
+*.pdf
