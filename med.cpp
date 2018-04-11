@@ -65,16 +65,19 @@ int med(){
   bool wjet;
   bool photon_cut;
   bool loose;
+  bool five_loose;
   bool medium;
   Long64_t nentries = chain->GetEntries();
   TH1D *h[7];
   TH1D *hm[7];
   Double_t pt_cut;
   Int_t flag;
+  Int_t total=0;
   char ch[7];
   for (int i=0;i<7;i++){
     //h[i]=new TH1D(ch,"photon_chiso[0]<0.441;photon_sieie[0];count",bin1,-0.01,0.09);
-    sprintf(ch,"h%d",i);
+    sprintf(ch,"hm%d",i);
+    //hm[i]=new TH1D(Form("hm%d",i);photon_sieie[0];count",bin3,-0.005,0.020);
     hm[i]=new TH1D(ch,";photon_sieie[0];count",bin3,-0.005,0.020);
   }
   /*TH2D *h3=new TH2D("h3","photon_chiso[0]<0.441 && photon_sieie[0]<0.09;photon_sieie[0];photon_chiso[0]",bin2,-0.001,0.09,bin3,-0.5,1.);
@@ -88,17 +91,21 @@ int med(){
     //cout<<flag<<"aaa"<<photon_pt[0]<<"aaa"<<photon_pt[1]<<"aaa"<<photon_pt[2]<<"aaa"<<photon_pt[3]<<"aaa"<<photon_pt[4]<<"aaa"<<photon_pt[5]<<endl;
     wjet = lep==13 && nlooseeles==0 && nloosemus<2 && mtVlepJECnew>30 && ptlep1>25 && fabs(etalep1)<2.1 && MET_et>35;
     for (int j=0;j<6;j++) {
-       photon_cut = photon_isprompt[j] != 1  &&  photon_drla[j]>0.3 && TMath::Abs(photon_eta[j])<1.4442 && photon_sieie[j]<0.018; //limit photon in the barrel, and restrict photon_sieie<0.018
-       loose = photon_hoe[j]<0.105 && photon_nhiso[j]<9.188+0.0126*photon_pt[j]+0.000026*photon_pt[j]*photon_pt[j] && photon_phoiso[j]<2.956+0.0035*photon_pt[j];
-       medium = photon_hoe[j]<0.035 && photon_nhiso[j]<2.491+0.0126*photon_pt[j]+0.000026*photon_pt[j]*photon_pt[j] && photon_phoiso[j]<2.952+0.0040*photon_pt[j];
-        if ( wjet && photon_cut && medium) {
+       photon_cut = photon_isprompt[j] != 1  &&  photon_drla[j]>0.3 && abs(photon_eta[j])<1.4442 && photon_sieie[j]<0.018; //limit photon in the barrel, and restrict photon_sieie<0.018
+       five_loose = photon_hoe[j]<5*0.0597 && photon_nhiso[j]<5*(10.910+0.0148*photon_pt[j]+0.000017*photon_pt[j]*photon_pt[j]) && photon_phoiso[j]<5*(3.630+0.0047*photon_pt[j]);
+       loose = photon_hoe[j]<0.0597 && photon_nhiso[j]<10.910+0.0148*photon_pt[j]+0.000017*photon_pt[j]*photon_pt[j] && photon_phoiso[j]<3.630+0.0047*photon_pt[j];
+       medium = photon_hoe[j]<0.0396 && photon_nhiso[j]<2.725+0.0148*photon_pt[j]+0.000017*photon_pt[j]*photon_pt[j] && photon_phoiso[j]<2.571+0.0047*photon_pt[j];
+        if ( wjet && photon_cut && five_loose) {
+          total++;
+          cout<<photon_eta[j]<<endl;
          if (pt_cut<photon_pt[j]){
+
            pt_cut=photon_pt[j];
            flag=j;
-           cout<<pt_cut<<"\t"<<flag<<"\t"<<photon_pt[0]<<"\t"<<photon_pt[1]<<"\t"<<photon_pt[2]<<"\t"<<photon_pt[3]<<"\t"<<photon_pt[4]<<"\t"<<photon_pt[5]<<endl;
+           //cout<<pt_cut<<"\t"<<flag<<"\t"<<photon_pt[0]<<"\t"<<photon_pt[1]<<"\t"<<photon_pt[2]<<"\t"<<photon_pt[3]<<"\t"<<photon_pt[4]<<"\t"<<photon_pt[5]<<endl;
          }
          if ( j==5 ) {
-           if (photon_chiso[flag]<1.416){
+           if (photon_chiso[flag]<1.295){
              hm[0]->Fill(photon_sieie[flag]);
            }
            for(int i=1;i<7;i++){
@@ -112,6 +119,7 @@ int med(){
        // if (Cut(ientry) < 0) continue;
     }
   }
+  cout<<"total:"<<total<<endl;
   sysstyle();
   TCanvas *c1 = new TCanvas("c1","c1");
   TLegend *l1 = new TLegend(0.5,0.60,0.8,0.8);
@@ -124,7 +132,7 @@ int med(){
     //delete hm[i];
   }
   l1->Draw();
-  c1->SaveAs("med-50bin.eps");
+  c1->SaveAs("los-50bin2.eps");
   return 0;
 }
 void sysstyle(){
