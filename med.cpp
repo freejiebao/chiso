@@ -62,7 +62,7 @@ int med(){
   chain->SetBranchAddress("photon_eta",photon_eta);
   //string loose="photon_hoe[0]<0.105 && photon_nhiso[0]<9.188+0.0126*photon_pt[0]+0.000026*photon_pt[0]*photon_pt[0] && photon_phoiso[0]<2.956+0.0035*photon_pt[0]";
   //string medium="photon_hoe[0]<0.035 && photon_nhiso[0]<2.491+0.0126*photon_pt[0]+0.000026*photon_pt[0]*photon_pt[0] && photon_phoiso[0]<2.952+0.0040*photon_pt[0]";
-  bool wjet = lep==13 && nlooseeles==0 && nloosemus<2 && mtVlepJECnew>30 && ptlep1>25 && fabs(etalep1)<2.1 && MET_et>35;
+  bool wjet;
   bool photon_cut;
   bool loose;
   bool medium;
@@ -81,18 +81,21 @@ int med(){
   TH2D *h4=new TH2D("h4","photon_chiso[0]>1.2 && photon_sieie[0]<0.09;photon_sieie[0];photon_chiso[0]",bin2,-0.001,0.09,225,-5,220);
   TH2D *h5=new TH2D("h5","photon_chiso[0]<0.441 && photon_sieie[0]<0.018;photon_sieie[0];photon_chiso[0]",bin3,-0.001,0.018,bin3,-0.5,1.);
   TH2D *h6=new TH2D("h6","photon_chiso[0]>1.2 && photon_sieie[0]<0.018;photon_sieie[0];photon_chiso[0]",bin3,-0.001,0.018,225,-5,220);*/
-  for (Long64_t jentry=0; jentry<nentries;jentry++){
+  for (Long64_t jentry=0; jentry<nentries/*jentry<2000*/;jentry++){
     chain->GetEntry(jentry);
     pt_cut=0.;
     flag=0;
+    //cout<<flag<<"aaa"<<photon_pt[0]<<"aaa"<<photon_pt[1]<<"aaa"<<photon_pt[2]<<"aaa"<<photon_pt[3]<<"aaa"<<photon_pt[4]<<"aaa"<<photon_pt[5]<<endl;
+    wjet = lep==13 && nlooseeles==0 && nloosemus<2 && mtVlepJECnew>30 && ptlep1>25 && fabs(etalep1)<2.1 && MET_et>35;
     for (int j=0;j<6;j++) {
        photon_cut = photon_isprompt[j] != 1  &&  photon_drla[j]>0.3 && photon_eta[j]<1.442 && photon_sieie[j]<0.018; //limit photon in the barrel, and restrict photon_sieie<0.018
        loose = photon_hoe[j]<0.105 && photon_nhiso[j]<9.188+0.0126*photon_pt[j]+0.000026*photon_pt[j]*photon_pt[j] && photon_phoiso[j]<2.956+0.0035*photon_pt[j];
        medium = photon_hoe[j]<0.035 && photon_nhiso[j]<2.491+0.0126*photon_pt[j]+0.000026*photon_pt[j]*photon_pt[j] && photon_phoiso[j]<2.952+0.0040*photon_pt[j];
-       if ( wjet == true && photon_cut == true && medium == true ) {
-         if (pt_cut-photon_pt[j]<0.){
+        if ( wjet && photon_cut && medium) {
+         if (pt_cut<photon_pt[j]){
            pt_cut=photon_pt[j];
            flag=j;
+           cout<<pt_cut<<"\t"<<flag<<"\t"<<photon_pt[0]<<"\t"<<photon_pt[1]<<"\t"<<photon_pt[2]<<"\t"<<photon_pt[3]<<"\t"<<photon_pt[4]<<"\t"<<photon_pt[5]<<endl;
          }
          if ( j==5 ) {
            if (photon_chiso[flag]<1.416){
