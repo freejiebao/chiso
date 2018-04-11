@@ -88,7 +88,7 @@ int med(){
     //cout<<flag<<"aaa"<<photon_pt[0]<<"aaa"<<photon_pt[1]<<"aaa"<<photon_pt[2]<<"aaa"<<photon_pt[3]<<"aaa"<<photon_pt[4]<<"aaa"<<photon_pt[5]<<endl;
     wjet = lep==13 && nlooseeles==0 && nloosemus<2 && mtVlepJECnew>30 && ptlep1>25 && fabs(etalep1)<2.1 && MET_et>35;
     for (int j=0;j<6;j++) {
-       photon_cut = photon_isprompt[j] != 1  &&  photon_drla[j]>0.3 && photon_eta[j]<1.442 && photon_sieie[j]<0.018; //limit photon in the barrel, and restrict photon_sieie<0.018
+       photon_cut = photon_isprompt[j] != 1  &&  photon_drla[j]>0.3 && TMath::Abs(photon_eta[j])<1.4442 && photon_sieie[j]<0.018; //limit photon in the barrel, and restrict photon_sieie<0.018
        loose = photon_hoe[j]<0.105 && photon_nhiso[j]<9.188+0.0126*photon_pt[j]+0.000026*photon_pt[j]*photon_pt[j] && photon_phoiso[j]<2.956+0.0035*photon_pt[j];
        medium = photon_hoe[j]<0.035 && photon_nhiso[j]<2.491+0.0126*photon_pt[j]+0.000026*photon_pt[j]*photon_pt[j] && photon_phoiso[j]<2.952+0.0040*photon_pt[j];
         if ( wjet && photon_cut && medium) {
