@@ -78,7 +78,7 @@ int med(){
     //h[i]=new TH1D(ch,"photon_chiso[0]<0.441;photon_sieie[0];count",bin1,-0.01,0.09);
     sprintf(ch,"hm%d",i);
     //hm[i]=new TH1D(Form("hm%d",i);photon_sieie[0];count",bin3,-0.005,0.020);
-    hm[i]=new TH1D(ch,";photon_sieie[0];count",bin3,-0.005,0.020);
+    hm[i]=new TH1D(ch,";photon_sieie[0];count",bin3,-0.005,0.018);
   }
   /*TH2D *h3=new TH2D("h3","photon_chiso[0]<0.441 && photon_sieie[0]<0.09;photon_sieie[0];photon_chiso[0]",bin2,-0.001,0.09,bin3,-0.5,1.);
   TH2D *h4=new TH2D("h4","photon_chiso[0]>1.2 && photon_sieie[0]<0.09;photon_sieie[0];photon_chiso[0]",bin2,-0.001,0.09,225,-5,220);
@@ -89,15 +89,16 @@ int med(){
     pt_cut=0.;
     flag=0;
     //cout<<flag<<"aaa"<<photon_pt[0]<<"aaa"<<photon_pt[1]<<"aaa"<<photon_pt[2]<<"aaa"<<photon_pt[3]<<"aaa"<<photon_pt[4]<<"aaa"<<photon_pt[5]<<endl;
-    wjet = lep==13 && nlooseeles==0 && nloosemus<2 && mtVlepJECnew>30 && ptlep1>25 && fabs(etalep1)<2.1 && MET_et>35;
+    //wjet = lep==13 && nlooseeles==0 && nloosemus<2 && mtVlepJECnew>30 && ptlep1>25 && fabs(etalep1)<2.1 && MET_et>35;
     for (int j=0;j<6;j++) {
-       photon_cut = photon_isprompt[j] != 1  &&  photon_drla[j]>0.3 && abs(photon_eta[j])<1.4442 && photon_sieie[j]<0.018; //limit photon in the barrel, and restrict photon_sieie<0.018
+       wjet = (lep==13 && nlooseeles==0 && nloosemus<2 && mtVlepJECnew>30 && ptlep1>30 && fabs(etalep1)<2.5 && MET_et>35);
+       photon_cut = photon_isprompt[j] != 1  &&  photon_drla[j]>0.5 && fabs(photon_eta[j])<1.442; //limit photon in the barrel, and restrict photon_sieie<0.018
        five_loose = photon_hoe[j]<5*0.0597 && photon_nhiso[j]<5*(10.910+0.0148*photon_pt[j]+0.000017*photon_pt[j]*photon_pt[j]) && photon_phoiso[j]<5*(3.630+0.0047*photon_pt[j]);
        loose = photon_hoe[j]<0.0597 && photon_nhiso[j]<10.910+0.0148*photon_pt[j]+0.000017*photon_pt[j]*photon_pt[j] && photon_phoiso[j]<3.630+0.0047*photon_pt[j];
        medium = photon_hoe[j]<0.0396 && photon_nhiso[j]<2.725+0.0148*photon_pt[j]+0.000017*photon_pt[j]*photon_pt[j] && photon_phoiso[j]<2.571+0.0047*photon_pt[j];
         if ( wjet && photon_cut && five_loose) {
           total++;
-          cout<<photon_eta[j]<<endl;
+          //cout<<photon_eta[j]<<endl;
          if (pt_cut<photon_pt[j]){
 
            pt_cut=photon_pt[j];
@@ -158,7 +159,7 @@ void histstyle(TH1D *h1,int i,TLegend *leg){
   h1->SetLineWidth(1);
   h1->DrawNormalized("HIST e,SAME");
   if(i==0)
-  leg->AddEntry(h1,"photon_chiso[0]<1.416","l");
+  leg->AddEntry(h1,"photon_chiso[0]<1.295","l");
   else{
     sprintf(cleg,"photon_chiso[0]>%d",2*i);
     leg->AddEntry(h1,cleg,"l");
