@@ -8,9 +8,9 @@
 #include "TLatex.h"
 #include <string>
 #include <stdio.h>
-using namespace std;
+#include "TFile.h"
 
-char cleg[6];
+using namespace std;
 
 void sysstyle();
 void histstyle(TH1D *h1,int i,TLegend *leg);
@@ -20,13 +20,6 @@ int med(){
   Int_t bin1=50;
   Int_t bin2=50;
   Int_t bin3=50;
-
-  //TLatex *ltx;
-  //ltx->SetTextAlign(13);
-  //ltx->SetTextSize(0.08);
-  /*TFile *f = new TFile("treePKU213.root");
-  TDirectoryFile *file=(TDirectoryFile *)f->Get("treeDumper");
-  TTree *chain=(TTree *)file->Get("PKUCandidates");*/
   Int_t lep;
   Int_t nlooseeles;
   Int_t nloosemus;
@@ -43,6 +36,7 @@ int med(){
   Double_t photon_sieie[6];
   Double_t photon_pt[6];
   Double_t photon_eta[6];
+  Double_t scalef;
 
   chain->SetBranchAddress("lep",&lep);
   chain->SetBranchAddress("nlooseeles",&nlooseeles);
@@ -60,108 +54,83 @@ int med(){
   chain->SetBranchAddress("photon_sieie",photon_sieie);
   chain->SetBranchAddress("photon_pt",photon_pt);
   chain->SetBranchAddress("photon_eta",photon_eta);
-  //string loose="photon_hoe[0]<0.105 && photon_nhiso[0]<9.188+0.0126*photon_pt[0]+0.000026*photon_pt[0]*photon_pt[0] && photon_phoiso[0]<2.956+0.0035*photon_pt[0]";
-  //string medium="photon_hoe[0]<0.035 && photon_nhiso[0]<2.491+0.0126*photon_pt[0]+0.000026*photon_pt[0]*photon_pt[0] && photon_phoiso[0]<2.952+0.0040*photon_pt[0]";
+  Double_t sieie_med,sieie_los,sieie_los5;
+  Double_t chiso_med,chiso_los,chiso_los5;
+  TFile *opt=new TFile("wjet.root","recreate");
+  TTree *medtree=new TTree("medtree","medium_id");
+  medtree->Branch("sieie_med",&sieie_med,"sieie_med/D");
+  medtree->Branch("chiso_med",&chiso_med,"chiso_med/D");
+  TTree *lostree=new TTree("lostree","loose_id");
+  lostree->Branch("sieie_los",&sieie_los,"sieie_los/D");
+  lostree->Branch("chiso_los",&chiso_los,"chiso_los/D");
+  TTree *los5tree=new TTree("los5tree","loose_id5");
+  los5tree->Branch("sieie_los5",&sieie_los5,"sieie_los5/D");
+  los5tree->Branch("chiso_los5",&chiso_los5,"chiso_los5/D");
   bool wjet;
   bool photon_cut;
   bool loose;
-  bool five_loose;
+  bool loose5;
   bool medium;
   Long64_t nentries = chain->GetEntries();
   TH1D *h[7];
   TH1D *hm[7];
-  Double_t pt_cut;
-  Int_t flag;
-  Int_t total=0;
-  char ch[7];
-  for (int i=0;i<7;i++){
-    //h[i]=new TH1D(ch,"photon_chiso[0]<0.441;photon_sieie[0];count",bin1,-0.01,0.09);
-    sprintf(ch,"hm%d",i);
-    //hm[i]=new TH1D(Form("hm%d",i);photon_sieie[0];count",bin3,-0.005,0.020);
-    hm[i]=new TH1D(ch,";photon_sieie[0];count",bin3,-0.005,0.018);
-  }
-  /*TH2D *h3=new TH2D("h3","photon_chiso[0]<0.441 && photon_sieie[0]<0.09;photon_sieie[0];photon_chiso[0]",bin2,-0.001,0.09,bin3,-0.5,1.);
-  TH2D *h4=new TH2D("h4","photon_chiso[0]>1.2 && photon_sieie[0]<0.09;photon_sieie[0];photon_chiso[0]",bin2,-0.001,0.09,225,-5,220);
-  TH2D *h5=new TH2D("h5","photon_chiso[0]<0.441 && photon_sieie[0]<0.018;photon_sieie[0];photon_chiso[0]",bin3,-0.001,0.018,bin3,-0.5,1.);
-  TH2D *h6=new TH2D("h6","photon_chiso[0]>1.2 && photon_sieie[0]<0.018;photon_sieie[0];photon_chiso[0]",bin3,-0.001,0.018,225,-5,220);*/
+  Double_t pho_pt[3];
+  Int_t flag[3];
+  Int_t total[3]={0};
   for (Long64_t jentry=0; jentry<nentries/*jentry<2000*/;jentry++){
     chain->GetEntry(jentry);
-    pt_cut=0.;
-    flag=0;
-    //cout<<flag<<"aaa"<<photon_pt[0]<<"aaa"<<photon_pt[1]<<"aaa"<<photon_pt[2]<<"aaa"<<photon_pt[3]<<"aaa"<<photon_pt[4]<<"aaa"<<photon_pt[5]<<endl;
-    //wjet = lep==13 && nlooseeles==0 && nloosemus<2 && mtVlepJECnew>30 && ptlep1>25 && fabs(etalep1)<2.1 && MET_et>35;
+    pho_pt[0]=0.;pho_pt[1]=0.;pho_pt[2]=0.;
+    flag[0]=100;flag[1]=100;flag[2]=100;
     for (int j=0;j<6;j++) {
        wjet = (lep==13 && nlooseeles==0 && nloosemus<2 && mtVlepJECnew>30 && ptlep1>30 && fabs(etalep1)<2.5 && MET_et>35);
-       photon_cut = photon_isprompt[j] != 1  &&  photon_drla[j]>0.5 && fabs(photon_eta[j])<1.442; //limit photon in the barrel, and restrict photon_sieie<0.018
-       five_loose = photon_hoe[j]<5*0.0597 && photon_nhiso[j]<5*(10.910+0.0148*photon_pt[j]+0.000017*photon_pt[j]*photon_pt[j]) && photon_phoiso[j]<5*(3.630+0.0047*photon_pt[j]);
+       photon_cut = photon_isprompt[j] != 1  &&  photon_drla[j]>0.5 && fabs(photon_eta[j])<1.442;
+       loose5 = photon_hoe[j]<5*0.0597 && photon_nhiso[j]<5*(10.910+0.0148*photon_pt[j]+0.000017*photon_pt[j]*photon_pt[j]) && photon_phoiso[j]<5*(3.630+0.0047*photon_pt[j]);
        loose = photon_hoe[j]<0.0597 && photon_nhiso[j]<10.910+0.0148*photon_pt[j]+0.000017*photon_pt[j]*photon_pt[j] && photon_phoiso[j]<3.630+0.0047*photon_pt[j];
        medium = photon_hoe[j]<0.0396 && photon_nhiso[j]<2.725+0.0148*photon_pt[j]+0.000017*photon_pt[j]*photon_pt[j] && photon_phoiso[j]<2.571+0.0047*photon_pt[j];
-        if ( wjet && photon_cut && five_loose) {
-          total++;
-          //cout<<photon_eta[j]<<endl;
-         if (pt_cut<photon_pt[j]){
-
-           pt_cut=photon_pt[j];
-           flag=j;
-           //cout<<pt_cut<<"\t"<<flag<<"\t"<<photon_pt[0]<<"\t"<<photon_pt[1]<<"\t"<<photon_pt[2]<<"\t"<<photon_pt[3]<<"\t"<<photon_pt[4]<<"\t"<<photon_pt[5]<<endl;
-         }
-         if ( j==5 ) {
-           if (photon_chiso[flag]<1.295){
-             hm[0]->Fill(photon_sieie[flag]);
-           }
-           for(int i=1;i<7;i++){
-             if (photon_chiso[flag]>(Double_t)2.*i ){
-               hm[i]->Fill(photon_sieie[flag]);
-             }
-           }
-         }
-
-       }
-       // if (Cut(ientry) < 0) continue;
+        if ( wjet && photon_cut ) {
+          if (loose5) {
+            total[0]++;
+            if (pho_pt[0]<photon_pt[j]){
+              pho_pt[0]=photon_pt[j];
+              flag[0]=j;
+            }
+          }
+          if (loose) {
+            total[1]++;
+            if (pho_pt[1]<photon_pt[j]){
+              pho_pt[1]=photon_pt[j];
+              flag[1]=j;
+            }
+          }
+          if (medium) {
+            total[2]++;
+            if (pho_pt[2]<photon_pt[j]){
+              pho_pt[2]=photon_pt[j];
+              flag[2]=j;
+            }
+          }
+        }
+      if ( j==5 && flag[0]!=100) {
+        sieie_los5=photon_sieie[flag[0]];
+        chiso_los5=photon_chiso[flag[0]];
+        los5tree->Fill();
+      }
+      if ( j==5 && flag[1]!=100) {
+        sieie_los=photon_sieie[flag[1]];
+        chiso_los=photon_chiso[flag[1]];
+        lostree->Fill();
+      }
+      if ( j==5 && flag[2]!=100) {
+        sieie_med=photon_sieie[flag[2]];
+        chiso_med=photon_chiso[flag[2]];
+        medtree->Fill();
+        //cout<<sieie_los5<<"\t"<<sieie_los<<"\t"<<sieie_med<<endl;
+      }
     }
   }
-  cout<<"total:"<<total<<endl;
-  sysstyle();
-  TCanvas *c1 = new TCanvas("c1","c1");
-  TLegend *l1 = new TLegend(0.5,0.60,0.8,0.8);
-  l1->SetBorderSize(2);
-  l1->SetFillColor(0);
-  for(int i=0;i<6;i++){
-    c1->cd();
-    histstyle(hm[i], i, l1);
-    //delete h[i];
-    //delete hm[i];
-  }
-  l1->Draw();
-  c1->SaveAs("los-50bin2.eps");
+  opt->Write();
+  cout<<"loose5_total:"<<total[0]<<endl;
+  cout<<"loose_total:"<<total[1]<<endl;
+  cout<<"medium_total:"<<total[2]<<endl;
   return 0;
-}
-void sysstyle(){
-  gStyle->SetPadBorderMode(0);
-  gStyle->SetOptStat(0);
-  gStyle->SetPadGridX(1);
-  gStyle->SetPadGridY(1);
-  gStyle->SetPadTickX(1);
-  gStyle->SetPadTickY(1);
-  gStyle->SetPadTickX(1);
-  gStyle->SetPadTickY(1);
-  gStyle->SetAxisColor(1, "XYZ");
-  gStyle->SetStripDecimals(kTRUE);
-  gStyle->SetTickLength(0.03, "XYZ");
-  gStyle->SetNdivisions(510, "XYZ");
-}
-void histstyle(TH1D *h1,int i,TLegend *leg){
-
-  h1->SetStats(kFALSE);
-  h1->SetLineColor(i+1);
-  h1->GetXaxis()->SetTitleSize(0.043);
-  h1->GetYaxis()->SetTitleSize(0.043);
-  h1->SetLineWidth(1);
-  h1->DrawNormalized("HIST e,SAME");
-  if(i==0)
-  leg->AddEntry(h1,"photon_chiso[0]<1.295","l");
-  else{
-    sprintf(cleg,"photon_chiso[0]>%d",2*i);
-    leg->AddEntry(h1,cleg,"l");
-  }
 }
