@@ -34,6 +34,9 @@
 # dict file produced by root
 *.pcm
 
+#data file
+*.root
+
 # output file
 *.eps
 *.pdf
