@@ -14,9 +14,10 @@ using namespace std;
 
 char cleg[7];
 Int_t bin=50;
-
+Int_t color[10]={1,2,30,38,6,7,8,9,36,42};
 void sysstyle();
 void histstyle(TH1D *h1,int i,TLegend *leg);
+void histstyle2(TH1D *h1,int i,TLegend *leg);
 void compare_med(TTree* t0);
 void compare_los(TTree* t1);
 void compare_los5(TTree* t2);
@@ -33,27 +34,6 @@ int paint(){
   compare_los(lostree);
   compare_los5(los5tree);
   compare(medtree,lostree,los5tree);
-  /*Long64_t n=tree->GetEntries();
-  for(Long64_t i=0;i<n;i++){
-    tree->GetEntry(i);
-    if (pho_chiso<0.441){
-      hm[0]->Fill(pho_sieie);
-    }
-    for(int i=1;i<7;i++){
-      if (pho_chiso>(Double_t)2.*i ){
-        hm[i]->Fill(pho_sieie);
-      }
-    }
-  }
-  TCanvas *c1 = new TCanvas("c1","c1");
-  c1->SetLogy();
-  TLegend *l1 = new TLegend(0.5,0.60,0.8,0.8);
-  l1->SetBorderSize(2);
-  l1->SetFillColor(0);
-  for(int i=0;i<6;i++){
-    c1->cd();
-    histstyle(hm[i], i, l1);
-  }*/
   return 0;
 }
 
@@ -66,6 +46,12 @@ void sysstyle(){
   gStyle->SetPadTickY(1);
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
+  gStyle->SetPadTopMargin(0.07);
+  gStyle->SetPadBottomMargin(0.3);
+  gStyle->SetPadRightMargin(0.05);
+  gStyle->SetPadLeftMargin(0.14);
+  gStyle->SetPadTickX(1);
+  gStyle->SetPadTickY(1);
   gStyle->SetAxisColor(1, "XYZ");
   gStyle->SetStripDecimals(kTRUE);
   gStyle->SetTickLength(0.03, "XYZ");
@@ -73,10 +59,10 @@ void sysstyle(){
 }
 void histstyle(TH1D *h1,int i,TLegend *leg){
   h1->SetStats(kFALSE);
-  h1->SetLineColor(i+1);
+  h1->SetLineColor(color[i]);
   h1->GetXaxis()->SetTitleSize(0.043);
   h1->GetYaxis()->SetTitleSize(0.043);
-  h1->SetLineWidth(3);
+  h1->SetLineWidth(1);
   h1->DrawNormalized("HIST e,SAME");
   if(i==0)
   leg->AddEntry(h1,"photon_chiso[0]<0.441","l");
@@ -213,6 +199,12 @@ void compare(TTree* t0,TTree* t1,TTree* t2){
 
   t2->SetBranchAddress("sieie_los5",&sieie_los5);
   t2->SetBranchAddress("chiso_los5",&chiso_los5);
+  TH1D *hmed0 = new TH1D("hmed0",";photon_sieie[0];count",bin,-0.005,0.018);
+  TH1D *hmed1 = new TH1D("hmed1",";photon_sieie[0];count",bin,-0.005,0.018);
+  TH1D *hlos0 = new TH1D("hlos0",";photon_sieie[0];count",bin,-0.005,0.018);
+  TH1D *hlos1 = new TH1D("hlos1",";photon_sieie[0];count",bin,-0.005,0.018);
+  TH1D *hlos50 = new TH1D("hlos50",";photon_sieie[0];count",bin,-0.005,0.018);
+  TH1D *hlos51 = new TH1D("hlos51",";photon_sieie[0];count",bin,-0.005,0.018);
   /*TH1D *hmed[7];
   char cmed[7];
   for (int i=0;i<7;i++){
@@ -244,22 +236,55 @@ void compare(TTree* t0,TTree* t1,TTree* t2){
   n=t2->GetEntries();
   for(Long64_t i=0;i<n;i++){
     t2->GetEntry(i);
-    if (chiso_los5<5*1.295){
+    if (chiso_los5<1.295){
       hlos50->Fill(sieie_los5);
     }
     if (chiso_los5>4 && chiso_los5<10 ){
       hlos51->Fill(sieie_los5);
     }
   }
-  TCanvas *c0 = new TCanvas("c0","c0");
-  c0->SetLogy();
-  TLegend *l0 = new TLegend(0.5,0.60,0.8,0.8);
-  l0->SetBorderSize(2);
-  l0->SetFillColor(0);
-  for(int i=0;i<6;i++){
-    c0->cd();
-    histstyle(hmed[i], i, l0);
+  TCanvas *c3 = new TCanvas("c3","c3");
+  c3->SetLogy();
+  TLegend *l3 = new TLegend(0.15,0.66,0.45,0.86);
+  l3->SetBorderSize(2);
+  l3->SetFillColor(0);
+  c3->cd();
+  histstyle2(hmed0, 1, l3);
+  histstyle2(hmed1, 2, l3);
+  histstyle2(hlos0, 3, l3);
+  histstyle2(hlos1, 4, l3);
+  histstyle2(hlos50, 5, l3);
+  histstyle2(hlos51, 6, l3);
+
+  l3->Draw();
+  c3->SaveAs("c3.eps");
+}
+void histstyle2(TH1D *h1,int i,TLegend *leg){
+  h1->SetStats(kFALSE);
+  h1->SetLineStyle(9);
+  h1->SetLineColor(color[i-1]);
+  h1->GetXaxis()->SetTitleSize(0.043);
+  h1->GetYaxis()->SetTitleSize(0.043);
+  h1->SetLineWidth(1);
+  h1->DrawNormalized("HIST e,SAME");
+  switch (i) {
+    case 1:
+    leg->AddEntry(h1,"medium id && photon_chiso[0]<0.441","l");
+    break;
+    case 2:
+    leg->AddEntry(h1,"medium id && 4<photon_chiso[0]<10","l");
+    break;
+    case 3:
+    leg->AddEntry(h1,"loose id && photon_chiso[0]<1.295","l");
+    break;
+    case 4:
+    leg->AddEntry(h1,"loose id && 4<photon_chiso[0]<10","l");
+    break;
+    case 5:
+    leg->AddEntry(h1,"5*loose id && photon_chiso[0]<1.295","l");
+    break;
+    case 6:
+    leg->AddEntry(h1,"5*loose id && 4<photon_chiso[0]<10","l");
+    break;
   }
-  l0->Draw();
-  c0->SaveAs("c0.eps");
 }
