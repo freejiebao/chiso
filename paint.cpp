@@ -15,9 +15,16 @@ using namespace std;
 char cleg[7];
 Int_t bin=50;
 Int_t color[10]={1,2,30,38,6,7,8,9,36,42};
+Int_t color1[6]={625,843,823,791,869,599};
+Int_t color2[8]={1,1,632,632,600,600,799,849};
+Int_t line[10]={1,2,1,2,1,2,1,2,1,2};
+Int_t linwid[10]={1,2,1,2,1,2,1,2,1,2};
 void sysstyle();
 void histstyle(TH1D *h1,int i,TLegend *leg);
 void histstyle2(TH1D *h1,int i,TLegend *leg);
+TH1D normhist(TH1D h1,int i=1);
+TCanvas twopads();
+TLegend newleg();
 void compare_med(TTree* t0);
 void compare_los(TTree* t1);
 void compare_los5(TTree* t2);
@@ -30,9 +37,9 @@ int paint(){
   TTree *los5tree =(TTree*)ipt->Get("los5tree");
   TTree *lostree =(TTree*)ipt->Get("lostree");
 
-  compare_med(medtree);
-  compare_los(lostree);
-  compare_los5(los5tree);
+  //compare_med(medtree);
+  //compare_los(lostree);
+  //compare_los5(los5tree);
   compare(medtree,lostree,los5tree);
   return 0;
 }
@@ -74,9 +81,10 @@ void histstyle(TH1D *h1,int i,TLegend *leg){
 void compare_med(TTree* t0){
   Double_t sieie_med;
   Double_t chiso_med;
-
+  Double_t scalef0;
   t0->SetBranchAddress("sieie_med",&sieie_med);
   t0->SetBranchAddress("chiso_med",&chiso_med);
+  t0->SetBranchAddress("scalef0",&scalef0);
   TH1D *hmed[7];
   char cmed[7];
   for (int i=0;i<7;i++){
@@ -89,11 +97,11 @@ void compare_med(TTree* t0){
   for(Long64_t i=0;i<n;i++){
     t0->GetEntry(i);
     if (chiso_med<0.441){
-      hmed[0]->Fill(sieie_med);
+      hmed[0]->Fill(sieie_med,scalef0);
     }
     for(int i=1;i<7;i++){
       if (chiso_med>(Double_t)2.*i ){
-        hmed[i]->Fill(sieie_med);
+        hmed[i]->Fill(sieie_med,scalef0);
       }
     }
   }
@@ -113,9 +121,10 @@ void compare_med(TTree* t0){
 void compare_los(TTree* t1){
   Double_t sieie_los;
   Double_t chiso_los;
-
+  Double_t scalef1;
   t1->SetBranchAddress("sieie_los",&sieie_los);
   t1->SetBranchAddress("chiso_los",&chiso_los);
+  t1->SetBranchAddress("scalef1",&scalef1);
   TH1D *hlos[7];
   char clos[7];
   for (int i=0;i<7;i++){
@@ -128,11 +137,11 @@ void compare_los(TTree* t1){
   for(Long64_t i=0;i<n;i++){
     t1->GetEntry(i);
     if (chiso_los<1.295){
-      hlos[0]->Fill(sieie_los);
+      hlos[0]->Fill(sieie_los,scalef1);
     }
     for(int i=1;i<7;i++){
       if (chiso_los>(Double_t)2.*i ){
-        hlos[i]->Fill(sieie_los);
+        hlos[i]->Fill(sieie_los,scalef1);
       }
     }
   }
@@ -151,9 +160,11 @@ void compare_los(TTree* t1){
 void compare_los5(TTree* t2){
   Double_t sieie_los5;
   Double_t chiso_los5;
-
+  Double_t scalef2;
   t2->SetBranchAddress("sieie_los5",&sieie_los5);
   t2->SetBranchAddress("chiso_los5",&chiso_los5);
+  t2->SetBranchAddress("scalef2",&scalef2);
+
   TH1D *hlos5[7];
   char clos5[7];
   for (int i=0;i<7;i++){
@@ -166,11 +177,11 @@ void compare_los5(TTree* t2){
   for(Long64_t i=0;i<n;i++){
     t2->GetEntry(i);
     if (chiso_los5<5*1.295){
-      hlos5[0]->Fill(sieie_los5);
+      hlos5[0]->Fill(sieie_los5,scalef2);
     }
     for(int i=1;i<7;i++){
       if (chiso_los5>(Double_t)2.*i ){
-        hlos5[i]->Fill(sieie_los5);
+        hlos5[i]->Fill(sieie_los5,scalef2);
       }
     }
   }
@@ -190,21 +201,22 @@ void compare_los5(TTree* t2){
 void compare(TTree* t0,TTree* t1,TTree* t2){
   Double_t sieie_med,sieie_los,sieie_los5;
   Double_t chiso_med,chiso_los,chiso_los5;
-
+  Double_t scalef0,scalef1,scalef2;
   t0->SetBranchAddress("sieie_med",&sieie_med);
   t0->SetBranchAddress("chiso_med",&chiso_med);
-
+  t0->SetBranchAddress("scalef0",&scalef0);
   t1->SetBranchAddress("sieie_los",&sieie_los);
   t1->SetBranchAddress("chiso_los",&chiso_los);
-
+  t1->SetBranchAddress("scalef1",&scalef1);
   t2->SetBranchAddress("sieie_los5",&sieie_los5);
   t2->SetBranchAddress("chiso_los5",&chiso_los5);
-  TH1D *hmed0 = new TH1D("hmed0",";photon_sieie[0];count",bin,-0.005,0.018);
-  TH1D *hmed1 = new TH1D("hmed1",";photon_sieie[0];count",bin,-0.005,0.018);
-  TH1D *hlos0 = new TH1D("hlos0",";photon_sieie[0];count",bin,-0.005,0.018);
-  TH1D *hlos1 = new TH1D("hlos1",";photon_sieie[0];count",bin,-0.005,0.018);
-  TH1D *hlos50 = new TH1D("hlos50",";photon_sieie[0];count",bin,-0.005,0.018);
-  TH1D *hlos51 = new TH1D("hlos51",";photon_sieie[0];count",bin,-0.005,0.018);
+  t2->SetBranchAddress("scalef2",&scalef2);
+  TH1D *hmed0 = new TH1D("hmed0","photon_sieie distribution;photon_sieie;count",bin,0.,0.018);
+  TH1D *hmed1 = new TH1D("hmed1","photon_sieie distribution;photon_sieie;count",bin,0.,0.018);
+  TH1D *hlos0 = new TH1D("hlos0","photon_sieie distribution;photon_sieie;count",bin,0.,0.018);
+  TH1D *hlos1 = new TH1D("hlos1","photon_sieie distribution;photon_sieie;count",bin,0.,0.018);
+  TH1D *hlos50 = new TH1D("hlos50","photon_sieie distribution;photon_sieie;count",bin,0.,0.018);
+  TH1D *hlos51 = new TH1D("hlos51","photon_sieie distribution;photon_sieie;count",bin,0.,0.018);
   /*TH1D *hmed[7];
   char cmed[7];
   for (int i=0;i<7;i++){
@@ -217,33 +229,35 @@ void compare(TTree* t0,TTree* t1,TTree* t2){
   for(Long64_t i=0;i<n;i++){
     t0->GetEntry(i);
     if (chiso_med<0.441){
-      hmed0->Fill(sieie_med);
+      hmed0->Fill(sieie_med,scalef0);
     }
     if (chiso_med>4 && chiso_med<10 ){
-      hmed1->Fill(sieie_med);
+      hmed1->Fill(sieie_med,scalef0);
     }
   }
   n=t1->GetEntries();
   for(Long64_t i=0;i<n;i++){
     t1->GetEntry(i);
-    if (chiso_los<1.295){
-      hlos0->Fill(sieie_los);
+    if (chiso_los<0.441){
+      hlos0->Fill(sieie_los,scalef1);
     }
     if (chiso_los>4 && chiso_los<10 ){
-      hlos1->Fill(sieie_los);
+      hlos1->Fill(sieie_los,scalef1);
     }
   }
   n=t2->GetEntries();
   for(Long64_t i=0;i<n;i++){
     t2->GetEntry(i);
-    if (chiso_los5<1.295){
-      hlos50->Fill(sieie_los5);
+    if (chiso_los5<0.441){
+      hlos50->Fill(sieie_los5,scalef2);
+      //cout<<scalef2<<endl;
     }
     if (chiso_los5>4 && chiso_los5<10 ){
-      hlos51->Fill(sieie_los5);
+      hlos51->Fill(sieie_los5,scalef2
+      );
     }
   }
-  TCanvas *c3 = new TCanvas("c3","c3");
+  TCanvas *c3 = new TCanvas("c3","c3",800,600);
   c3->SetLogy();
   TLegend *l3 = new TLegend(0.15,0.66,0.45,0.86);
   l3->SetBorderSize(2);
@@ -261,30 +275,66 @@ void compare(TTree* t0,TTree* t1,TTree* t2){
 }
 void histstyle2(TH1D *h1,int i,TLegend *leg){
   h1->SetStats(kFALSE);
-  h1->SetLineStyle(9);
+  h1->SetLineStyle(line[i-1]);
   h1->SetLineColor(color[i-1]);
   h1->GetXaxis()->SetTitleSize(0.043);
   h1->GetYaxis()->SetTitleSize(0.043);
-  h1->SetLineWidth(1);
-  h1->DrawNormalized("HIST e,SAME");
+  h1->SetLineWidth(linwid[i-1]);
+  h1->Draw("HIST e,SAME");
   switch (i) {
     case 1:
-    leg->AddEntry(h1,"medium id && photon_chiso[0]<0.441","l");
+    leg->AddEntry(h1,"medium id && photon_chiso<0.441","l");
     break;
     case 2:
-    leg->AddEntry(h1,"medium id && 4<photon_chiso[0]<10","l");
+    leg->AddEntry(h1,"medium id && 4<photon_chiso<10","l");
     break;
     case 3:
-    leg->AddEntry(h1,"loose id && photon_chiso[0]<1.295","l");
+    leg->AddEntry(h1,"loose id && photon_chiso<0.441","l");
     break;
     case 4:
-    leg->AddEntry(h1,"loose id && 4<photon_chiso[0]<10","l");
+    leg->AddEntry(h1,"loose id && 4<photon_chiso<10","l");
     break;
     case 5:
-    leg->AddEntry(h1,"5*loose id && photon_chiso[0]<1.295","l");
+    leg->AddEntry(h1,"5*loose id && photon_chiso<0.441","l");
     break;
     case 6:
-    leg->AddEntry(h1,"5*loose id && 4<photon_chiso[0]<10","l");
+    leg->AddEntry(h1,"5*loose id && 4<photon_chiso<10","l");
     break;
   }
 }
+
+/*TH1D normhist(TH1D h1,int i){
+  h1.SetStats(kFALSE);
+  h1.SetLineStyle(9);
+  h1.SetLineColor(color[i-1]);
+  h1.GetXaxis().SetTitleSize(0.043);
+  h1.GetYaxis().SetTitleSize(0.043);
+  h1.SetLineWidth(1);
+  Double_t scale = norm/h1.Integral();
+  h1->Scale(scale);
+  return h1;
+}
+
+TCanvas twopads(){
+  TCanvas c= new TCanvas("c","test graph",750,500);
+  c.cd();
+  TPad top_pad("top_pad", "top_pad",0,0.22, 1.0, 1.0);
+  top_pad.Draw();
+  top_pad.cd();
+  top_pad.SetBottomMargin(0.1);
+  top_pad.SetLogy();
+
+  TPad bottom_pad("bottom_pad", "bottom_pad", 0, 0., 1.0, 0.2);
+  bottom_pad.Draw();
+  bottom_pad.cd();
+  bottom_pad.SetTopMargin(0);
+
+  return c;
+}
+
+TLegend newleg(){
+  TLegend l = new TLegend(0.65,0.65,0.78,0.82);
+  l->SetBorderSize(1);
+  l->SetFillColor(0);
+  return l;
+}*/
