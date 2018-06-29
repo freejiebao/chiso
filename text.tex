@@ -1,0 +1,459 @@
+
+
+\section{引言}
+随着粒子物理实验寻找的物理现象越来越稀有，实验中经常遇到小信号测量的统计推断问题。所谓的小信号测量，可以是待测物理量本身数值很小(接近于零)，或者待测量的现象(信号)出现的概率很小。
+
+如果实验提供了令人信服的新信号测量，则该结果可声称为发现。如果结果不够令人信服，可以通过区间估计，引入新信号产生的上限作为结果。区间估计可以用在新粒子的质量或耦合强度的测量中；更一般的情况下，可以排出新理论参数空间中影响信号产额的区域。
+
+衡量一个实验的结果有多“令人信服”，有不同的方法。本文主要介绍显著性水平和区间估计的概念，以及确定两者的方法。
+
+\section{如何宣称一个发现}
+
+\subsection{p值}
+
+对于给定的数据样本，宣称发现一个新信号需要确定样本与$H_{0}$假设(这里假定只有本底存在时为$H_{0}$)充分不一致。假定一个检验统计量t，在只有纯本底时，用P值来描述t大于或等于观测来过的概率。由此，当t越大时，p值越小，偏离纯本底过程越多，此时更像是有新信号的过程，令为假设$H_{1}$。
+
+下面给出一个p值的例子。在计数实验中，观测值符合泊松分布。图1为预期计数为4.5的一个泊松分布(只含本底)，若观测到的实际值为8，则p值为大于或等于8的概率，通过下式给出：
+
+\begin{equation}\label{key}
+p=P(n \geqslant 8)=\sum_{n=8}^{\infty} Pois(n; 4.5)
+
+= 1 - e^{-4.5} \sum_{n=0}^{7} \dfrac{4.5^{n}}{n!}.
+\end{equation}
+
+通过计算，可以得出p值为0.087，如图1。
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\linewidth]{pic/tu1}
+	\caption{无信号及本底期望值为4.5的泊松分布}
+	\label{fig:1}
+\end{figure}
+
+\subsection{显著性水平}
+
+相较于直接使用p值，通常更倾向于报告正态分布与p值相等的右端面积所对应的标准差的等效数字，即为“Z$\sigma$”,可用下式进行计算：
+
+\begin{equation}\label{key}
+p= \int_{Z}^{\infty} \frac{1}{\sqrt{2\pi}} e^{-x^{2}/2} dx = 1- \Phi(Z)=\Phi(-Z)
+
+=\frac(1)(2)\left[ 1- erf(\frac{Z}{\sqrt{2}}) \right].
+\end{equation}
+
+表1给出了典型“Z $\sigma$”对应的p值。
+
+\begin{table}[hbt]
+	\caption{典型“Z $\sigma$”对应的p值}
+	\centering
+	\begin{tabular}{llr}
+		\toprule
+		Z(\sigma) & p \\
+		\midrule
+		1.00 & 1.59 \times 10^{-1} \\
+		1.28 & 1.00 \times 10^{-1} \\
+		1.64 & 5.00 \times 10^{-2} \\
+		2.00 & 2.28 \times 10^{-2} \\
+		2.32 & 1.00 \times 10^{-2} \\
+		3.00 & 1.35 \times 10^{-2} \\
+		4.00 & 3.17 \times 10^{-5} \\
+		5.00 & 2.87 \times 10^{-7} \\
+		\bottomrule
+	\end{tabular}
+	\label{tab:label}
+\end{table}
+
+要排除信号假设，不同于发现信号需要满足“$5\sigma$”，即要求$p$值小于了$2.87 \times 10^{-7}$。而是将信号排除的上限设置为$p<0.05$,对应95$\%$d的置信区间，或$p<0.10$,对应90$\%$的置信区间。
+\subsection{满足泊松分布的计数实验中的显著度}
+
+在计数实验中，观测到的事例数为$n$，包含有信号和本底，期望的事件总数为$s+b$,其中$s$为期望的信号数，$b$为期望的本底数。假设本底$b$已知(可以通过理论估计等方法得到)，则信号$s$的似然方程为：
+
+\begin{equation}\label{key}
+L(n;s,b)=\frac{(s+b)^{n}}{n!} e^{-(s+b)}.
+\end{equation}
+
+零假设中$s=0$,则观测值$n$应该和$b$接近。如果$b$是足够大的，该分布可以被近似为均值为$b$，标准差为$\sqrt{b}$的高斯分布。则$s=n-b$应与预期的标准差进行比较，显著度可从下式得出：
+
+\begin{equation}\label{key}
+Z=\frac{s}{\sqrt{b}}.
+\end{equation}
+
+若本底$b$估计时，误差不能忽视，则上式改写为：
+
+\begin{equation}\label{key}
+Z=\frac{s}{\sqrt{b+\sigma_{b}^{2}}}.
+\end{equation}
+
+\subsection{似然比的显著度}
+
+寻找新信号时，也常用基于似然比的统计量来进行检验，其形式如下：
+
+\begin{equation}\label{key}
+\lamba(\mu,\vec{\theta})=\frac{L_{s+b}(\vec{x_{1}},\cdots,\vec{x_{N}};\mu,\vec{\theta})}{L_{b}(\vec{x_{1}},\cdots,\vec{x_{N}};\vec{\theta})}
+\end{equation}
+
+设$-2log\lamda (\mu)$取最小值时，$\mu= \hat{\mu}$,即信号强度可能等于$\hat{\mu}$。
+
+当上式中$\mu=0$时，$2log\lamda (\hat{\mu}})$的分布可以用一个自由度的$\chi ^{2}$分布来描述，此时显著度可以用下式表示：
+
+\begin{equation}\label{key}
+Z=\sqrt{2log\lamda(\hat{\mu})}.
+\end{equation}
+
+这个$Z$被称为局部显著度，因为它对应与一组固定的$\vec(\theta)$值。
+
+\section{定义上限}
+
+在频率法中，设定上限的过程是置信区间确定的特例，通常应用于位置信号的产量$s$，或者可选地应用于信号强度$\mu$.
+
+为了确定上限而不是通常的中心区间，与期望置信水平$1-\alpha$(通常为$90\%$或者$95\%$)相对应的区间的选择是完全非对称的，用$\left[0,s^{up}\left[$表示，意为$s<s^{up}$的置信度为$90\%$（或者$95\%$）.
+
+在贝叶斯方法中，上限$s^{up}$的解释为可信区间$\left[0,s^{up}\left[$对应的后验概率等于置信水平$1-\alpha$.
+
+\subsection{贝叶斯方法}
+
+对于信号产额的贝叶斯后验概率分布，设先验概率为$\pi (s)$,可用下式表示：
+
+\begin{equation}\label{key}
+P(s|\vec(x))= \frac{L(\vec{x};s)\pi(s)}{\int_{0}^{\infty}L(\vec{x};s^{'})\pi(s^{'})ds^{'}}.
+\end{equation}
+
+当要求$\left[0,s^{up}\left[$对应的后验概率等于置信水平$1-\alpha$时，可以通过下式计算：
+
+\begin{equation}\label{key}
+\alpha = \int_{s^{up}}^{\infty}P(s|\vec(x))\pi(s)ds=\frac{\int_{s^{up}}^{\infty}L(\vec{x};s)\pi(s)ds}{\int_{0}^{\infty}L(\vec{x};s)\pi(s)ds}.
+\end{equation}
+
+其中，$\alpha=1-CL$.
+
+\subsubsection{泊松计数中的贝叶斯上限}
+
+对于最简单的可忽略本底的过程，即$b=$0,并且假设先验分布为均匀分布，即$\pi(s)=const$,则后验概率密度分布函数$s$与泊松分布具有相同的概率密度分布函数，即为下式：
+
+\begin{equation}\label{key}
+P(s|n)=\frac{s^{n}e^{-s}}{n!}.
+\end{equation}
+
+如果观测到的事例数为零，$n$=0,则
+
+\begin{equation}\label{key}
+P(s|0)=e^{-s},
+\end{equation}
+
+此时，
+
+\begin{equation}\label{key}
+\alpha=\int_{s^{up}}^{\infty}e^{-s}ds=e^{-s^{up}},
+\end{equation}
+
+可得
+
+\begin{equation}\label{key}
+s_{up}=-log~\alpha.
+\end{equation}
+
+由上，对于$\alpha$=0.05(95$\%$CL)与$\alpha$=0.10(90$\%$CL)，上限可以求出为：
+
+$s<3.00$在95$\%$95CL时，
+
+$s<2.30$在95$\%$90CL时。
+
+对于$b\neq 0$的一般情况，$\alpha$如下，
+
+\begin{equation}\label{key}
+\alpha=e^{-s^{up}}\frac{\sum_{m=0}^{n} \frac{(s^{up}+b)^{m}}{m!}}{\sum_{m=0}^{n} \frac{b^{m}}{m!}}.
+\end{equation}
+
+若本底$b=0$，则上式即为
+
+\begin{equation}\label{key}
+\alpha=e^{-s^{up}}\sum_{m=0}^{n} \frac{(s^{up})^{m}}{m!}.
+\end{equation}
+
+对于可忽略本底，观测值$n$不同的过程，其上限见下表：
+
+\begin{table}[hbt]
+	\caption{背景可忽略时，用贝叶斯方法对不同观测值n进行上限的估计}
+	\centering
+	\begin{tabular}{llr}
+		\toprule
+		$n$ & 1-$\alpha=90\%$ & 1-$\alpha=95\%$ \\
+		\cmidrule
+		  & $s^{up}$ & $s^{up}$ \\
+		\midrule
+		0 & 2.30 & 3.00 \\
+		1 & 3.89 & 4.74 \\
+		2 & 5.32 & 6.30 \\
+		3 & 6.68 & 7.75 \\
+		4 & 7.99 & 9.15 \\
+		5 & 9.27 & 10.51 \\
+		6 & 10.53 & 11.84 \\
+		7 & 11.77 & 13.15 \\
+		8 & 12.99 & 14.43 \\
+		9 & 14.21 & 15.71 \\
+		10 & 15.41 & 19.96 \\
+		\bottomrule
+	\end{tabular}
+	\label{tab:1}
+\end{table}
+
+对于不同的观测值$n$与不同的期望本底$b$，上限有下面两图给出。
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\linewidth]{pic/tu2}
+	\caption{90$\%$CL时，贝叶斯方法在泊松过程中给出的上限}
+	\label{fig:2}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\linewidth]{pic/tu3}
+	\caption{95$\%$CL时，贝叶斯方法在泊松过程中给出的上限}
+	\label{fig:3}
+\end{figure}
+
+上述过程中，假定了先验概率$\pi(x)$为常数，但不同的假定，会给出不同的上限。但是并没有一种唯一的方法给出先验概率，所以，可以选择更多的先验模型，进行模拟，最后验证所获得的上限对先前的选择并不敏感。
+
+\subsection{频数法上限}
+
+频数法中的上限可以通过Neyman待进行计算。
+\subsubsection{区间估计的经典方法}
+
+经典方法的基本思想由Neyman提出，设待估参量为$\theta$,实验观测值为$x$，区间估计是要从实验观测值$x$确定$\theta$的一个区间$\theta \in \left[\theta_{1},\theta_{2}\right]$,满足
+
+\begin{equation}\label{key}
+P(\theta \in \left[\theta_{1},\theta_{2}\right])=1-\alpha.
+\end{equation}
+
+其中$1-\alpha=$CL. CL即为置信水平，也称为涵盖概率。显然$\theta_{1},\theta_{2}$是观测值$x$的函数。在$\theta-x$标绘上，对于一个确定的置信水平CL，置信区间形成一个置信带，如下图，
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\linewidth]{pic/tu4}
+	\caption{未知参数$\theta$和观测值$x$的置信水平CL的置信带}
+	\label{fig:4}
+\end{figure}
+
+置信带的构造是对任意特定$\theta$值，找到相应的$x$接受区间$[x_{1},x_{2}]$满足关系式
+
+\begin{equation}\label{key}
+P(x \in \left[x_{1},x_{2}\right]|\theta)=1-\alpha.
+\end{equation}
+
+所有可能的$\mu$值相应的$x$接受区间$\left[x_{1},x_{2}\right]$的集合即构成置信水平CL的置信带。通常使用中心置信区间和上限置信区间。所谓中心置信区间，是指$\left[x_{1},x_{2}\right]$满足
+
+\begin{equation}\label{key}
+P(x<x_{1}|\theta)=P(x>x_{2}|\theta)=\frac{\alpha}{2}.
+\end{equation}
+
+而上限置信区间$[x_{up},\infty]$定义
+
+\begin{equation}\label{key}
+P(x>x_{up}|\theta)=1-\alpha.
+\end{equation}
+
+示意图如下
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\linewidth]{pic/tu5}
+	\caption{置信水平CL的上限置信带}
+	\label{fig:5}
+\end{figure}
+
+对于任意观测值$x$,这样确定的中心置信区间满足
+
+\begin{equation}\label{key}
+P(x|\theta<\theta_{1})=P(x|\theta>\theta_{2})=\frac{\alpha}{2},
+\end{equation}
+
+而上限置信区间满足
+
+\begin{equation}\label{key}
+P(x|\theta<\theta_{up})=1-\alpha.
+\end{equation}
+
+所以参数$\theta$的区间估计问题实际上是置信带的构造问题，所以必须了解观测值$x$和待估计参数$\theta$之间的概率密度函数。
+
+\subsubsection{计数实验中的频数法上限}
+
+首先，依然从可忽略本底的计数实验入手。期望值为$s$的泊松分布观测值为$n$的概率如下：
+
+\begin{equation}\label{key}
+P(n;s)=\frac{e^{-s}s^{n}}{n!}.
+\end{equation}
+
+求期望的信号产额为$s$的上限，可以利用$n$作为统计量，来排除低于$\alpha=1-CL$的，观测到$n$个或更小概率的事件。当$n=0$时，
+
+\begin{equation}\label{key}
+p=P(0;s)=e^{-s}.
+\end{equation}
+
+并且条件$p>\alpha$，
+
+\begin{equation}\label{key}
+p=e^{-s}>\alpha.
+\end{equation}
+
+可得
+
+\begin{equation}\label{key}
+s<-log\alpha=s_{up}
+\end{equation}
+
+对于$\alpha$=0.05或者$\alpha$=0.1，上限为
+
+$s<3.00$在95$\%$95CL时，
+
+$s<2.30$在95$\%$90CL时。
+
+这些结果和贝叶斯方法的结果恰好相同，在简单但常见的计数实验下，贝叶斯方法和频数法计算的上限数值重合可能导致混淆。实际上，并没有内在原因使两者得出相同的结果。
+
+\subsection{离散变量的频数法极限}
+
+但构造Neyman带的时候，如果变量是离散的，如泊松分布中的$n$值，不一定总能找到一个区间{$n^{low},\codts,n^{up}$}使得恰好满足涵盖概率。对于离散的情形，可以取最小的区间使得其概率大于或等于想要的置信水平。下图展示对应于$s$=4，$b$=0的泊松分布。使用完全不对称的间隔作排序，区间{2,3,$\cdots$}对应于离散变量$n$的概率$P(n\gep 2)=1-P(0)-P(1)=0.9084$,并且这是满足大于或小于置信水平0.90的最小区间：区间{3,4,$\cdots$}将会使$p(n\gep 3)$小于0.9，当扩大区间至{1,2,3,$\cdots$}将会使$p(n\gep 1)$大于$p(n\gep 2)$.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\linewidth]{pic/tu6}
+	\caption{$s$=4,$b$=0的泊松分布}
+	\label{fig:6}
+\end{figure}
+
+如果观测到了$n$个事例，上限$s^{up}$通过Neyman置信带给出，
+
+\begin{equation}\label{key}
+s^{up}=inf{s:\sum_{m=0}^{n}<\alpha}.
+\end{equation}
+
+考虑一个本底不可忽略的情况，$b\neq$0,统计量为$n$.在统计波动很大时，可能出现$s$=0或$s<$0的非物理情况，这在实际情况中是不可能的，所以通常会引入物理限制，一般为$s\gep$0,但这可能造成涵盖率不足，所以需要引入其他的方法避免上述问题。
+
+\subsubsection{Feldman-Cousins统一方法}
+
+为解决涵盖率不足等经典Neyman方法的不足，可以使用Feldman-Cousins方法，该方法提供了中心置信区间到上限置信区间的连续过渡。此外，它确保排除了非物理的参数值($s$<0).
+
+在泊松分布的计数情形中，由Feldman-Cousins方法构造的置信水平为0.9的置信带，其中本底为$b$=3,如下图
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\linewidth]{pic/tu7}
+	\caption{Feldman-Cousins方法构造的$b$=3的90$\%$CL的泊松分布置信带}
+	\label{fig:7}
+\end{figure}
+
+使用Feldman-Cousins方法作期望背景$b$和观测事例数$n$从0到10的泊松分布信号在90$\%$CL的上限，结果如下图
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\linewidth]{pic/tu8}
+	\caption{Feldman-Cousins得到的$n$从0到10,不同$b$的泊松分布在90$\%$CL的信号上限}
+	\label{fig:8}
+\end{figure}
+
+从上图可以看出Feldman-Cousins上限的独特特征，对于n=0,一个更大的期望本底$b$对应于一个更加严格即更低的上限。这在贝叶斯上限中是不存在的，即$n$=0时，上限不依赖于本底$b$.
+
+这种依赖于本底的上限结果是违背直观特征的，因为大家跟倾向于将上限解释为信号假设的对应贝叶斯概率，即使是在频数法下确定的。当然，有一种改进的似然比顺序求和方法来规避Feldman-Cousins方法的问题，但本文将介绍为了一种对纯频数法进行修改的方法来给出更符合直观特征的上限。
+
+\subsubsection{修正的频数法：$CL_{s}$方法}
+
+$CL_{s}$方法对纯频数法进行了改进，对p值引入了一个校正因子，用以改善Feldman-Cousins方法不符合直观理解的特性。特别是它避免了纯粹由统计波动而排出实验不敏感参数区域的可能性。而且，不会像Feldman-Cousins方法，如果观察到零事件，较高的预期背景给出更严格的上限限制。
+
+所谓的修正的频数法，将在两种假设（零假设$H_{0}$,只有本底存在，对应的似然函数$L_{b}$；$H_{1}$假设既有本底，又有信号，对应的似然函数为$L_{s+b}$）下评估似然函数的比率。
+
+\begin{equation}\label{key}
+\lambda (\vec{\theta }) = \frac{L_{s+b}(\vec{x}\,;\,\vec{\theta })} {L_{b}(\vec{x}\,;\,\vec{\theta })}.
+\end{equation}
+
+当然，上式是最基本的表达式。针对更加广泛统计量，似然比写成由信号强度$\mu$和向量参数$\vec{\theta}$表达的形式
+
+\begin{equation}\label{key}
+\lambda (\,\mu,\,\vec{\theta }) = e^{-\mu s(\vec{\theta })}\prod _{ i=1}^{N}\left (\frac{\mu s(\vec{\theta })f_{s}(\vec{x}_{i};\,\vec{\theta })} {b(\vec{\theta })f_{b}(\vec{x}_{i};\,\vec{\theta })} + 1\right ),
+\end{equation}
+
+这里函数$f_{s}$和$f_{b}$是变量为向量$\vec{x}$的信号和本底的概率密度分布函数。则该统计量的负对数如下
+
+\begin{equation}\label{key}
+-\log \lambda (\,\mu,\,\vec{\theta }) =\mu s(\vec{\theta }) -\sum _{i=1}^{N}\log \left (\frac{\mu s(\vec{\theta })f_{s}(\vec{x}_{i};\,\vec{\theta })} {b(\vec{\theta })f_{b}(\vec{x}_{i};\,\vec{\theta })} + 1\right ).
+\end{equation}
+
+为了用频数法给出一个上限，必须知道信号加本底假设中的统计量$\lamda$（或$-2log\lamda$）的分布，并切p值对应的观测量$\lambda =\hat{\lambda }$，简记为$p_{s+b}$,是参数$\mu$和$\vec{\theta}$的函数。
+
+对于纯频数法的修改包括找到两个与$h_{1}$和$h_{0}$假设相应的p值（为了简单起见，参数$\lamda$也包括在$\vec{\theta}$中，
+
+\begin{equation}\label{key}
+p_{s+b}(\vec{\theta }) = P_{s+b}(\lambda (\vec{\theta }) \geq \hat{\lambda }),
+\end{equation}
+
+\begin{equation}\label{key}
+p_{b}(\vec{\theta }) = P_{b}(\lambda (\vec{\theta }) \leq \hat{\lambda }).
+\end{equation}
+
+从上边两个概率可以引入一个新的量
+
+\begin{equation}\label{key}
+\mathrm{CL}_{s}(\vec{\theta }) = \frac{p_{s+b}(\vec{\theta })} {1-p_{b}(\vec{\theta })}.
+\end{equation}
+
+通过排除$CL_{s}(\vec{\theta})$小于一般置信水平如：95$\%$,或90$\%$, 可以确定上限。
+
+在绝大部分情况下，$P_{b+s}$与$P_{b}$并不是能够简单解析出来的，所以用蒙特卡洛产生赝数据来确定两者。一个例子如下图
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\linewidth]{pic/tu9}
+	\caption{模拟中的$CL_{s}$求解.统计量$-2log\lamda$对于信号加本底的假设用红线表示，对于仅有本底的假设用蓝线表示。黑线为数据中测得的统计量，阴影区域代表了$P_{b+s}$（蓝），$P_{b}$（红），$CL_{s}$通过$\mathrm{CL}_{s}(\vec{\theta }) = \frac{p_{s+b}(\vec{\theta })} {1-p_{b}(\vec{\theta })}$给出}
+	\label{fig:9}
+\end{figure}
+
+改进后的频率法没有从频率论的角度提供期望的覆盖范围，但也没有了频数法上限的反直觉特征，并且以下特性：
+
+1.从频数法的角度来说，它是保守的。因为$p_{b}\leq 1$,$\mathrm{CL}_{s}(\vec{\theta }) \geq p_{s+b}(\vec{\theta })$，并且${CL}_{s}$上限相较于纯频数法没有那么严格。
+
+2.于Feldman-Cousins方法得到的上限不同，如果没有事例被观测到，$CL_{s}$上限不依赖于本底的期望值。这个特性是和贝叶斯上限一致的，
+
+如果两个假设$H_{0}$与$H_{1}$的统计量$\lamda$的分布很好地分开，在$H_{1}$为真的情况下，$p_{b}$一般都会很小，此时$CL_{s}\simeq p_{s+b}$.这样的话，${CL}_{s}$上限将几乎与基于的$p_{s+b}$的纯频数法下相同。如果这两种分布有很大的重叠，这表明实验对信号的敏感度很低。这种情况下，有过由于统计波动，$p_{b}$很大，那么$1-p_{b}$是很小的，为了防止${CL}_{s}$变得太小，从而可以拒绝实验灵敏度较低的情况。示意图入下
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\linewidth]{pic/tu10}
+	\caption{${CL}_{s}$方法在测试统计量$-2log\lamda$对$s+b$和$b$假设(顶部)的区分度很好的情况下的应用；以及在实验对信号敏感度较差时，重叠区域较大时的应用}
+	\label{fig:10}
+\end{figure}
+
+通常， 在许多实际应用中，CL的上限在数值上类似于假定一个均匀先验分布的贝叶斯上限，但贝叶斯上限的解释不能应用于${CL}_{s}$方法得到的上限。用${CL}_{s}$方法得到的极限的基本解释并不明晰，既不符合频数法也不符合贝叶斯方法。
+
+\subsubsection{${CL}_{s}$方法在LEP上标准模型希格斯粒子寻找上的应用}
+
+LEP实验的四个合作组：ALEPH, DELPHI, L3 以及OPAL共收集了2461$pb^{-1}$的$e^{+}e^{-}$对撞数据，这些数据的对撞质心能量区间为189~209GeV，这些数据被用来搜索标准模型希格斯玻色子。四个合作组的组合结果就用到了似然方法对纯背景假设与信号加本底的假设的一致性进行了检验，在95	$\%$置信水平下，建立了希格斯玻色子质量的下限为114.4$GeV/c^{2}$.
+
+假设检验中，对于纯本底情形，假设数据只接收来自本底的过程贡献；而对于信号加本底的情形，假设产生信号贡献的标准模型希格斯粒子的质量为$m_{H}$，以此为依据构建似然函数$L_{b}$和$L_{s+b}$，则似然比如下：
+
+\begin{equation}\label{key}
+Q = \frac{L_{s+b}} {L_{b}}.
+\end{equation}
+
+这样有效利用了事例信息。为方便起见，使用$-2lnQ$作为最终统计量。对于四个实验组的混合数据，$-2lnQ$的分布如下图。
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\linewidth]{pic/tu11}
+	\caption{对于纯本底和信号加本底假设中，对应不同固定检验质量的概率密度函数。对于统计量$-2lnQ$来说的观测值为垂直线。浅色阴影区为$1-CL_{b}$，测量纯本底假设的置信水平；深色阴影区为$\CL_{s+b}$，测量信号加本底假设的置信水平}
+	\label{fig:11}
+\end{figure}
+
+以上三图分别选择了三个检验质量。当$m_{H}=110GeV/c^{2}$时，LEP的混合数据显示出了对两种假设显著的区分能力；$m_{H}=115GeV/c^{2}$区分能力有所减弱；$m_{H}=120GeV/c^{2}$时，区分能力迅速减小。
+
+竖线在上图中表示为对应质量的观测量$-2lnQ$.从$-\infty$到测量值对本底假设的概率密度函数积分，得到表示观测与本底假设不相容的本底可信度$1-CL_{b}$(即为p值)。对于大量的无信号模拟测量，在给定本底假设的情况下，$1-CL_{b}$给出的是更像信号加本底假设的概率。同样地，对信号加本底假设的概率密度函数从统计量的观测值积分到$\infty$得到$\CL_{s+b}$，对信号加本底假设的一致性进行量化。
+
+最后使用$CL_{s}$方法，其中$CL_{s}=CL_{s+b}/CL_{b}$作为一个检验质量的函数。下图显示了在95$\%$置信水平下，以$CL_{s}$作为最低检验值来作为质量下限。此时显示LEP实验中希格斯粒子的质量下限为114.4$GeV/c^{2}$,中心期望值为115.3$GeV/c^{2}$.
+
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\linewidth]{pic/tu12}
+	\caption{对于信号加本底假设的$CL_{s}$方法，作为质量的函数}
+	\label{fig:12}
+\end{figure}
+
+\section{总结}
+
+本文简单介绍了p值，贝叶斯方法中的上限，频数法中的上限，及$CL_{s}$方法。并举例说明了$CL_{s}$方法在LEP实验中，希格斯质量测量的应用。其实，$CL_{s}$方法现已广泛应用于高能物理分析实验中，所以了解该方法具有一定意义。
